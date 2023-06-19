@@ -71,7 +71,7 @@ techRouter.post("/addTech", fileUpload(), async (req, res) => {
                 pathFile = `http://localhost:3000/tech/img/${dimg.id}/${img.name}`
                 dimg.set({ img: pathFile })
                 await dimg.save()
-                res.json({ res: true }).status(200)
+                res.json({ res: true, data: pathFile }).status(200)
             }
         })
     }
@@ -92,7 +92,7 @@ techRouter.post("/addTechdefault", async (req, res) => {
             img: img
         })
         await dimg.save()
-        res.json({ res: true }).status(200)
+        res.json({ res: true, data: img }).status(200)
     }
 })
 techRouter.delete("/removeSkil", async (req, res) => {
@@ -110,8 +110,13 @@ techRouter.delete("/removeSkil", async (req, res) => {
                     res.json({ res: true }).status(200)
                 } else {
                     let imgInDataBase = await TechStack.findOneAndDelete({ img: img })
-                    fs.rm(path.resolve(__dirname, `../data/tech/${imgInDataBase.id}`),{force:true})
-                    res.json({res:true}).status(200)
+                    fs.rm(path.resolve(__dirname, `../data/tech/${imgInDataBase.id}`), { force: true,recursive:true }, (err) => {
+                        if (err) {
+                            res.json({ res: false, mes: err.message }).status(500);
+                        } else {
+                            res.json({ res: true }).status(200);
+                        }
+                    });
                 }
             }
         })
